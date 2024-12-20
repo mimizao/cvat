@@ -44,6 +44,8 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
       - cvat_db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"  
     networks:
       - cvat
 
@@ -55,9 +57,13 @@ services:
       "redis-server",
       "--save", "60", "100",
       "--appendonly", "yes",
+      "--bind", "0.0.0.0",
+      "--protected-mode", "no"
     ]
     volumes:
       - cvat_inmem_db:/data
+    ports:
+      - "6379:6379" 
     networks:
       - cvat
 
@@ -66,7 +72,8 @@ services:
     image: apache/kvrocks:2.7.0
     restart: always
     command: [
-      "--dir", "/var/lib/kvrocks/data"
+      "--dir", "/var/lib/kvrocks/data",
+      "--bind", "0.0.0.0"
     ]
     # The kvrocks image a) has a healthcheck command, and b) has a root process
     # that doesn't reap children, so it's susceptible to the problem described here:
@@ -76,6 +83,8 @@ services:
     init: true
     volumes:
       - cvat_cache_db:/var/lib/kvrocks/data
+    ports:
+      - "6666:6666" 
     networks:
       - cvat
 
